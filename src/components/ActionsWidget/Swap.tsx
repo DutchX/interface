@@ -79,21 +79,21 @@ const Swap = (props: Props) => {
   // };
   const [data, setData] = useState<any>(null);
 
-  useEffect(() => {
-    // Define an asynchronous function within useEffect
-    const fetchData = async () => {
-      try {
-        const response = await getQuote();
+  // useEffect(() => {
+  //   // Define an asynchronous function within useEffect
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await getQuote();
 
-        setData(response);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  //       setData(response);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
 
-    // Call the asynchronous function
-    fetchData();
-  }, []); // Empty dependency array means the effect runs once when the component mounts
+  //   // Call the asynchronous function
+  //   fetchData();
+  // }, []); // Empty dependency array means the effect runs once when the component mounts
 
   const [selectedOption, setSelectedOption] = useState('Share Price');
   const [isLoadingMetric, setIsLoadingMetric] = useState(false);

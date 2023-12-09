@@ -42,17 +42,9 @@ export const getChainRPC = (chainId: SupportedChains): AppConfig => {
     return {
       jsonRpcUri: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       wsRpcUri: `wss://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      subgraphApiUri: 'https://api.thegraph.com/subgraphs/name/yanuar-ar/factor-arbitrum',
+      subgraphApiUri: '',
     } as AppConfig;
   }
-
-  // Goerli
-  if (chainId == ChainId.ArbitrumGoerli)
-    return {
-      jsonRpcUri: `https://arb-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      wsRpcUri: `wss://arb-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      subgraphApiUri: 'https://api.thegraph.com/subgraphs/name/factordao/factor-arbitrum-goerli',
-    } as AppConfig;
 
   // Hardhat
   if (chainId == ChainId.Hardhat && VITE_HARDHAT_NETWORK_JSON_RPC)
@@ -62,20 +54,10 @@ export const getChainRPC = (chainId: SupportedChains): AppConfig => {
       subgraphApiUri: VITE_HARDHAT_NETWORK_SUBGRAPH,
     } as AppConfig;
 
-  // Hardhat
-  if (chainId == ChainId.Hardhat) {
-    return {
-      jsonRpcUri: `http://localhost:8545`,
-      wsRpcUri: `wss://localhost:8545`,
-      subgraphApiUri: 'http://localhost:8000/subgraphs/name/factordao/factor-hardhat',
-    } as AppConfig;
-  }
-
   return {
     jsonRpcUri: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
     wsRpcUri: `wss://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-    subgraphApiUri:
-      'https://factor-subgraph-testnet.fly.dev:8000/subgraphs/name/factordao/factor-hardhat',
+    subgraphApiUri: '',
   } as AppConfig;
 };
 
@@ -101,23 +83,15 @@ const getAddresses = (): ContractAddresses => {
 };
 
 export const getApiURL = (chainId: SupportedChains): string => {
-  if (chainId == ChainId.Arbitrum) {
-    return `https://factor-api-mainnet.fly.dev`;
-  }
-  if (chainId === ChainId.Hardhat) {
-    return `https://factor-api-testnet.fly.dev`;
-  }
-  return `https://factor-api-testnet.fly.dev`;
+  return ``;
 };
 
 export const getBotApiUrl = (chainId: SupportedChains): string => {
   if (chainId == ChainId.Arbitrum) {
-    return `https://factor-bot.fly.dev`;
+    return ``;
   }
-  if (chainId === ChainId.Hardhat) {
-    return `https://factor-bot.fly.dev`;
-  }
-  return `https://factor-bot.fly.dev`;
+
+  return ``;
 };
 
 export const config = () => ({

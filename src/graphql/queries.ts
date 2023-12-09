@@ -326,26 +326,9 @@ export const allRewardsQuery = gql`
   }
 `;
 
-export const getLatestDeposit = gql`
-  query latestDepositAmount($vaultAddress: String!) {
-    deposits(where: { vault_: { id: $vaultAddress } }, first: 1, orderDirection: desc) {
-      id
-      shareAmountRaw
-      assetAmountRaw
-    }
-  }
-`;
+export const getLatestDeposit = gql``;
 
-export const getAllDepositsQuery = () => gql`
-  {
-    users(where: { deposits_: { assetAmount_gt: "100" } }) {
-      id
-      deposits(orderDirection: desc) {
-        assetAmount
-      }
-    }
-  }
-`;
+export const getAllDepositsQuery = () => gql``;
 
 // ██╗░░░██╗██████╗░  ░██████╗░██╗░░░██╗███████╗██████╗░██╗███████╗░██████╗
 // ██║░░░██║╚════██╗  ██╔═══██╗██║░░░██║██╔════╝██╔══██╗██║██╔════╝██╔════╝
@@ -354,135 +337,20 @@ export const getAllDepositsQuery = () => gql`
 // ░░╚██╔╝░░███████╗  ░╚═██╔═╝░╚██████╔╝███████╗██║░░██║██║███████╗██████╔╝
 // ░░░╚═╝░░░╚══════╝  ░░░╚═╝░░░░╚═════╝░╚══════╝╚═╝░░╚═╝╚═╝╚══════╝╚═════╝░
 
-export const getAllVaultsV2 = () => gql`
-  {
-    factorVaults {
-      name
-      symbol
-      id
-      underlyingAssets {
-        token {
-          symbol
-          name
-          id
-          decimals
-        }
-      }
-    }
-  }
-`;
+export const getAllVaultsV2 = () => gql``;
 
-export const getAllVaultDayByDayDataV2 = (timeStamp: number) => gql`
-  {
-    factorVaults {
-      id
-      vaultDayData(
-        orderBy: date
-        orderDirection: desc
-        where: { date_gte: ${timeStamp} }
-      ) {
-        id
-        volume
-        date
-      }
-    }
-  }
-`;
+export const getAllVaultDayByDayDataV2 = (timeStamp: number) => gql``;
 
-export const genesisUserVaultUnderlyingAssetsQueryV2 = (vault: string) => gql`
-{
-  vaultHourDatas(orderBy: date, orderDirection: desc, where: {vault_: {id: "${vault}"}},first: 1
-  ) {
-    date
-    underlyingAssetHourData {
-      underlyingAsset {
-        token {
-          decimals
-          id
-          name
-          symbol
-        }
-        ratio
-      }
-      balance
-    }
-    totalShares
-    vault {
-      id
-    }
-  }
-}
-`;
+export const genesisUserVaultUnderlyingAssetsQueryV2 = (vault: string) => gql``;
 
 export const getVaultGenesisHourDataQueryV2 = () => {
-  return gql`
-    {
-      factorVaults {
-        id
-        vaultHourData(orderBy: date, orderDirection: desc, first: 1) {
-          date
-          underlyingAssetHourData {
-            underlyingAsset {
-              token {
-                id
-              }
-            }
-            balance
-          }
-          totalShares
-        }
-      }
-    }
-  `;
+  return gql``;
 };
 
-export const getVault24HourDataV2 = (timeStamp: number) => gql`
-{
-  factorVaults {
-    id
-    vaultHourData(
-      orderBy: date
-      orderDirection: desc
-      where: {date_gte: ${timeStamp}}
-    ) {
-      date
-      volume
-    }
-  }
-}
-`;
+export const getVault24HourDataV2 = (timeStamp: number) => gql``;
 
-export const getTotalVaultDepositorV2 = gql`
-  {
-    factorVaults {
-      id
-      uniqueDepositorCount
-    }
-  }
-`;
+export const getTotalVaultDepositorV2 = gql``;
 
 /////
 
-export const genesisVaultUserInformation2 = gql`
-  query genesisVaultUserInformation2($address: String!) {
-    users(where: { id: $address }) {
-      id
-      deposits {
-        assetAmount
-        vault {
-          id
-        }
-      }
-      userVaultData {
-        vaultAddress
-        shareBalance
-      }
-      profitAndLoss {
-        averageCost
-        vault {
-          id
-        }
-      }
-    }
-  }
-`;
+export const genesisVaultUserInformation2 = gql``;

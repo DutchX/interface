@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { loadEnv } from 'vite';
 
 // https://vitejs.dev/config/
 

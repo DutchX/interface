@@ -3,9 +3,11 @@ import {
   NetworkEnum,
   PrivateKeyProviderConnector,
   QuoteParams,
+  AuctionCalculator,
+  AuctionSalt,
+  AuctionSuffix,
 } from '@1inch/fusion-sdk';
 import { BigNumber as BN } from 'ethers';
-import { AuctionCalculator } from '@1inch/fusion-sdk';
 
 import axios from 'axios';
 import Web3 from 'web3';
@@ -57,6 +59,9 @@ export const getFusionSDK = async (): Promise<any> => {
   return orders;
 };
 
+function delay(seconds) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
 export const getAuctionOrders = async (): Promise<any> => {
   const limitOrderStruct = {
     allowedSender: '0x0000000000000000000000000000000000000000',
@@ -165,22 +170,6 @@ export const getQuoteOrder = async (): Promise<any> => {
 };
 
 export const placeOrder = async (): Promise<any> => {
-  const makerPrivateKey = '';
-  const makerAddress = '0xeEe5B833d6fA94e661cF2d2359c2749C50D46044';
-
-  const rpcEndpoint = 'https://arb-mainnet.g.alchemy.com/v2/lkFGfQpATYx05UzRcgRDUalSw6CCSq8a';
-  const web3 = new Web3(rpcEndpoint);
-
-  const blockchainProvider = new PrivateKeyProviderConnector(makerPrivateKey, web3);
-
-  console.log('proc', blockchainProvider);
-  const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion',
-    network: 42161,
-    blockchainProvider,
-    authKey: 'h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
-  });
-
   //   try {
   //     sdk
   //       .placeOrder({
@@ -195,10 +184,40 @@ export const placeOrder = async (): Promise<any> => {
 
   //     // res.json({ data: error });
   //   }
-  const url = 'http://localhost:3001/api/quote'; // Point to your local server
+
+  const url = 'http://localhost:3001/api/place'; // Point to your local server
+
+  const saltString = 'ddneoifhnweoifniowfnewinefnwioenoin';
 
   try {
+    console.log('plce');
     const response = await axios.get(url);
+
+    console.log(response);
+    const limitOrderStruct = response.data.order;
+
+    const calculator = AuctionCalculator.fromLimitOrderV3Struct(limitOrderStruct);
+    // #=> AuctionCalculator instance
+
+    const salt = AuctionSalt.decode(limitOrderStruct.salt);
+    console.log(salt);
+    const suffix = AuctionSuffix.decode(limitOrderStruct.interactions);
+
+    suffix.build();
+    console.log(suffix);
+    for (let i = 0; i < 300; i++) {
+      let currTimestamp = Math.floor(Date.now() / 1000);
+      const rate = calculator.calcRateBump(currTimestamp);
+
+      // #=> 14285
+
+      const auctionTakingAmount = calculator.calcAuctionTakingAmount(
+        limitOrderStruct.takingAmount,
+        rate
+      );
+      console.log(currTimestamp, '-', auctionTakingAmount);
+      await delay(1);
+    }
 
     console.log('placced Order', response);
     // return response.data;
