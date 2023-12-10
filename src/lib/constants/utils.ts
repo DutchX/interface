@@ -81,21 +81,6 @@ export const getAuctionOrders = async (): Promise<any> => {
 
   const rate = calculator.calcRateBump(1673548209);
 
-  console.log(
-    calculator,
-    calculator.calcRateBump(1673548209),
-    calculator.calcRateBump(1673548169),
-    calculator.calcRateBump(1673548269),
-    calculator.calcRateBump(1673548369),
-    calculator.calcRateBump(1673548469),
-    calculator.calcRateBump(1673548569),
-    calculator.calcRateBump(1673548669),
-    calculator.calcRateBump(1673548769),
-
-    calculator.calcRateBump(1673548809),
-    calculator.calcRateBump(1673548909)
-  );
-
   // #=> 14285
 
   const auctionTakingAmount = calculator.calcAuctionTakingAmount('1420000000', rate);
@@ -121,7 +106,8 @@ export const getLst = async (): Promise<any> => {
 
     //console.log(response.data.lsts, Object.values(response.data.lsts)[0]);
 
-    return Object.values(response.data.lsts)[0];
+    console.log(response.data.lsts);
+    return response.data.lsts;
   } catch (error) {
     console.error(error);
     return [];
@@ -175,30 +161,6 @@ export const getEntireTokenList = async (chainId: number): Promise<any> => {
 //Fusion API
 
 export const getQuote = async (): Promise<any> => {
-  // const url = 'https://api.1inch.dev/fusion/quoter/v1.0/1/quote/receive';
-
-  // const config = {
-  //   headers: {
-  //     Authorization: 'Bearer h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
-  //   },
-  //   params: {
-  //     fromTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  //     toTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-  //     amount: '1000000000000000000',
-  //     walletAddress: '0x0000000000000000000000000000000000000000',
-  //     enableEstimate: 'true',
-  //     isLedgerLive: 'false',
-  //   },
-  // };
-
-  // try {
-  //   console.log('before');
-  //   const response = await axios.get(url, config);
-  //   console.log(response.data);
-  // } catch (error) {
-  //   console.error(error);
-  // }
-
   const url = 'http://localhost:3001/api/quote'; // Point to your local server
 
   try {
@@ -209,51 +171,22 @@ export const getQuote = async (): Promise<any> => {
   }
 };
 
-export const getQuoteOrder = async (): Promise<any> => {
-  console.log('get quote');
+export const getQuoteOrder = async (token): Promise<any> => {
+  console.log('get quote', token);
   const url = 'http://localhost:3001/api/quote'; // Point to your local server
 
   try {
     const response = await axios.get(url);
 
+    console.log(response);
+
     return response.data;
   } catch (error) {
     console.error(error);
   }
-
-  //   const sdk = new FusionSDK({
-  //     url: 'https://api.1inch.dev/fusion',
-  //     network: NetworkEnum.ARBITRUM,
-  //     authKey: 'h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
-  //   });
-
-  //   const params = {
-  //     fromTokenAddress: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
-  //     toTokenAddress: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-  //     amount: '1000000000000000000000',
-  //   };
-
-  //   const quote = await sdk.getQuote(params);
-
-  //   return quote;
 };
 
-export const placeOrder = async (): Promise<any> => {
-  //   try {
-  //     sdk
-  //       .placeOrder({
-  //         fromTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
-  //         toTokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
-  //         amount: '50000000000000000', // 0.05 ETH
-  //         walletAddress: makerAddress,
-  //       })
-  //       .then(console.log);
-  //   } catch (error) {
-  //     console.log('error');
-
-  //     // res.json({ data: error });
-  //   }
-
+export const placeOrder = async (setOrderStatus, setAuctionPrice): Promise<any> => {
   const url = 'http://localhost:3001/api/place'; // Point to your local server
 
   const saltString = 'ddneoifhnweoifniowfnewinefnwioenoin';
@@ -274,6 +207,7 @@ export const placeOrder = async (): Promise<any> => {
 
     suffix.build();
     console.log(suffix);
+    setOrderStatus('Order placed');
     for (let i = 0; i < 300; i++) {
       let currTimestamp = Math.floor(Date.now() / 1000);
       const rate = calculator.calcRateBump(currTimestamp);
@@ -285,6 +219,11 @@ export const placeOrder = async (): Promise<any> => {
         rate
       );
       console.log(currTimestamp, '-', auctionTakingAmount);
+      setAuctionPrice(auctionTakingAmount);
+      if (parseInt(auctionTakingAmount) < 9328413) {
+        setOrderStatus('Order Filled');
+        break;
+      }
       await delay(1);
     }
 

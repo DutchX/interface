@@ -3,6 +3,7 @@ import { BigDecimal } from 'lib/helpers/BigDecimal';
 import AssetIcon from 'assets/main-logo-blue.svg';
 import SwapRing from 'assets/studio/SwapRing.svg';
 import { Button } from 'components/UI/Button/Button';
+import Card from 'components/Studio/Card';
 import { useEffect, useState } from 'react';
 
 import { HexAddress, getQuoteOrder, placeOrder } from 'lib/constants/utils';
@@ -29,24 +30,42 @@ interface Props {
 
 const oneInchv5 = '0x1111111254EEB25477B68fb85Ed929f73A960582';
 
-const Swap = (props: Props) => {
+const CARDS = [
+  {
+    value: 'Moderate',
+    title: 'Price Impact',
+    color: '#F5945F',
+  },
+  {
+    value: '1%',
+    title: 'Max Slippage',
+  },
+  {
+    value: 'High',
+    title: 'Swap Gas Fee',
+    color: '#FD7972',
+  },
+];
+
+const Cross = (props: Props) => {
   const currencyProp = {
     icon: AssetIcon,
     balance: BigDecimal.ZERO,
     inputValue: '00.00',
     currentAsset: {
-      name: 'DAI',
-      symbol: 'DAI',
-      logo: 'DAI',
+      name: 'ETH',
+      symbol: 'ETH',
+      logo: 'ETH',
       decimals: 18,
-      address: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+      address: '',
     },
     isDisabled: false,
-    symbol: 'DAI',
+    symbol: 'ETH',
     setInputValue: () => {},
     allTokens: props.allTokens,
     setToken: props.setInputToken,
-    token: 'DAI',
+    token: props.inputToken,
+    isCross: true,
   };
 
   const [isOpen, setIsOpen] = useState(false);
@@ -62,8 +81,6 @@ const Swap = (props: Props) => {
   const [depositAmount, setDepositAmount] = useState<BigNumber>();
 
   const [isLoadingMetric, setIsLoadingMetric] = useState(false);
-  const [orderStatus, setOrderStatus] = useState('');
-  const [auctionPrice, setAuctionPrice] = useState('');
 
   const [quoteAmount, setQuoteAmount] = useState<String>();
 
@@ -131,23 +148,21 @@ const Swap = (props: Props) => {
     balance: BigDecimal.ZERO,
     inputValue: quoteAmount,
     currentAsset: {
-      name: 'USDC',
-      symbol: 'USDC',
-      logo: 'USDC',
-      decimals: 6,
-      address: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+      name: 'ETH',
+      symbol: 'ETH',
+      logo: 'ETH',
+      decimals: 18,
+      address: '',
     },
     isDisabled: false,
-    symbol: 'USDC',
+    symbol: 'ETH',
     setInputValue: () => {},
     allTokens: props.allTokens,
     setToken: props.setOutputToken,
-    token: 'wstETH',
+    token: props.outputToken,
     useOut: true,
-    isCross: false,
+    isCross: true,
   };
-
-  console.log(currencyProp, currencyPropOut);
 
   return (
     <div className="w-full">
@@ -160,13 +175,18 @@ const Swap = (props: Props) => {
         />
         <CurrencyInput {...currencyPropOut} />
       </div>
+      <div className="flex justify-between my-5 gap-5">
+        {CARDS.map((item) => {
+          return <Card title={item.value} description={item.title} color={item.color} />;
+        })}
+      </div>
 
       <Button
         variant="write-btn"
         onClick={async () => {
-          const value = await getQuoteOrder(props?.inputToken);
+          const value = await getQuoteOrder();
           // setToToke(value.param.toTokenAddress)
-          setQuoteAmount(ethers.utils.formatUnits(BigNumber.from(value.toTokenAmount), 18));
+          setQuoteAmount(ethers.utils.formatUnits(BigNumber.from(value.toTokenAmount), 6));
         }}
       >
         Get Quote
@@ -183,15 +203,13 @@ const Swap = (props: Props) => {
       <Button
         variant="write-btn"
         onClick={() => {
-          placeOrder(setOrderStatus, setAuctionPrice);
+          placeOrder();
         }}
       >
         Place Order
       </Button>
-      <div>{orderStatus}</div>
-      <div>Current Auction price: {auctionPrice}</div>
     </div>
   );
 };
 
-export default Swap;
+export default Cross;

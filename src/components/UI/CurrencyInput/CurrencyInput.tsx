@@ -93,21 +93,23 @@ const CurrencyInput = (props: CurrencyInputProps) => {
           </div>
         ) : (
           <>
-            <select
-              value={chain || 'Base'}
-              onChange={(e) => setChain(e.target.value)}
-              className="w-1/4 bg-sec_brand_01 border-ui_accent rounded-lg text-white "
-            >
-              <option value="" disabled>
-                Select an option
-              </option>
-
-              {['Base', 'Ethereum', 'Polygon']?.map((asset, index) => (
-                <option key={`${asset} ${index}`} className="">
-                  <p className="font-bold body-regular-15 w-[10px]">{asset}</p>
+            {props?.isCross && (
+              <select
+                value={chain || 'Base'}
+                onChange={(e) => setChain(e.target.value)}
+                className="w-1/4 bg-sec_brand_01 border-ui_accent rounded-lg text-white "
+              >
+                <option value="" disabled>
+                  Select an option
                 </option>
-              ))}
-            </select>
+
+                {['Base', 'Ethereum', 'Polygon']?.map((asset, index) => (
+                  <option key={`${asset} ${index}`} className="">
+                    <p className="font-bold body-regular-15 w-[10px]">{asset}</p>
+                  </option>
+                ))}
+              </select>
+            )}
             <NumericInput
               maxDecimals={props.decimals}
               className="w-full text-2xl text-left bg-white border-none outline-none dark:bg-ui_surface heading focus:ring-0"

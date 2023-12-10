@@ -16,10 +16,14 @@ import Staking from 'components/ActionsWidget/Staking';
 import VaultMetrics from 'components/UI/Metrics/VaultMetrics';
 import { getLst, getTokenList } from 'lib/constants/utils';
 import TabsHeader from 'components/TabsWidget/TabsHeader';
+import { useNavigate } from 'react-router-dom';
+import Cross from 'components/ActionsWidget/Cross';
 
 const Discover = () => {
   const [allTokens, setAllTokens] = useState([]);
   const [lst, setLst] = useState<[]>();
+  const [ethLst, setEthtLst] = useState<[]>();
+  const [l2Lst, setL2Lst] = useState<[]>();
 
   const { chain } = useNetwork();
 
@@ -38,8 +42,13 @@ const Discover = () => {
         // Your asynchronous logic goes here
         const result = await getLst();
 
-        if (result && result?.length > 0) {
-          setLst(result);
+        console.log(result);
+
+        console.log(result['1']);
+
+        if (result && result?.[1]?.length > 0) {
+          setEthtLst(result['1']);
+          setL2Lst(result['2']);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -51,6 +60,7 @@ const Discover = () => {
 
     // The empty dependency array [] ensures that this effect runs only once.
   }, []);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Define your asynchronous function
@@ -121,17 +131,23 @@ const Discover = () => {
     : [];
 
   return (
-    <div className="gap-6 page-container">
+    <div className="gap-6 page-container ">
       <div className={` flex flex-col justify-center items-center `}>
         <div className={` flex flex-col justify-center items-center mb-10`}>
           {/* <Staking /> */}
-          <div className="flex flex-row w-full justify-center gap-2 mb-4">
+          <div className="flex flex-row w-full justify-center gap-2 mb-4 border-bottom-header border-white">
             <div
               className={`w-full h-[44px] font-bold text-center rounded-lg border-none px-2 py-3 uppercase cursor-pointer tracking-widest ${'gradiant-color'} text-lg  font-roboto_normal tracking-[0.75px] transition-all duration-200 `}
               onClick={() => setCurrentTab('Swap')}
             >
               Swap
             </div>
+            <div
+              className={`w-full h-[44px] font-bold text-center rounded-lg border-none px-2 py-3 uppercase cursor-pointer tracking-widest ${'gradiant-color'} text-lg font-roboto_normal tracking-[0.75px] transition-all duration-200 `}
+              onClick={() => setCurrentTab('Cross')}
+            >
+              Cross
+            </div>{' '}
             <div
               className={`w-full h-[44px] font-bold text-center rounded-lg border-none px-2 py-3 uppercase cursor-pointer tracking-widest ${'gradiant-color'} text-lg font-roboto_normal tracking-[0.75px] transition-all duration-200 `}
               onClick={() => setCurrentTab('LSTs')}
@@ -142,7 +158,7 @@ const Discover = () => {
               className={`w-full h-[44px] font-bold text-center rounded-lg border-none px-2 py-3 uppercase cursor-pointer tracking-widest ${'gradiant-color'} text-lg  font-roboto_normal tracking-[0.75px] transition-all duration-200 `}
               onClick={() => setCurrentTab('Stables')}
             >
-              Stables
+              Yield
               <div
                 className={`w-full h-[44px] text-2xs text-center rounded-lg font-[10px] border-none px-2 py-3 uppercase cursor-pointer tracking-widest ${'gradiant-color'} `}
               >
@@ -169,23 +185,102 @@ const Discover = () => {
             </div>
           )}
 
-          {currentTab == 'LSTs' &&
-            test?.map((asset, index) => (
-              <div
-                key={index}
-                className="box-border flex mt-8 flex-row w-[700px] px-4 pt-4 pb-4 bg-white shadow-xl rounded-xl dark:shadow-lg dark:bg-ui_surface mb-2"
-              >
-                <div className="flex flex-row items-center justify-between">{asset?.tokenName}</div>
-                <div className="ml-[100px] mr-[340px]">{'  '}</div>
+          {currentTab == 'Cross' && (
+            <div className={`mt-8`}>
+              <Cross
+                setTime={(time) => setValues({ ...values, time })}
+                setAutoDeposit={(autoDeposit) => setValues({ ...values, autoDeposit })}
+                setPercentage={(percentage) => setValues({ ...values, percentage })}
+                percentage={values.percentage}
+                time={values.time}
+                autoDeposit={values.autoDeposit}
+                allTokens={allTokens || []}
+                setInputToken={setInputToken}
+                setOutputToken={setOutputToken}
+                inputToken={inputToken}
+                outputToken={outputToken}
+              />
+            </div>
+          )}
 
-                <div
-                  className="flex  flex-end items-center justify-between ml-4"
-                  onClick={() => getLst()}
-                >
-                  APY: {asset?.apy}%
-                </div>
+          {currentTab == 'LSTs' && (
+            <div className="flex flex-row mr-10">
+              <div>
+                <h2>Liquid Staking on Ethereum</h2>
+                {currentTab == 'LSTs' &&
+                  ethLst?.map((asset, index) => (
+                    <div
+                      key={index}
+                      onClick={() => setCurrentTab('Swap')}
+                      className="box-border flex mt-8 flex-row w-[700px] px-4 pt-4 pb-4 bg-white shadow-xl rounded-xl dark:shadow-lg dark:bg-ui_surface mb-2"
+                    >
+                      <div className="flex flex-row items-center justify-between">
+                        {asset?.tokenSymbol}
+                      </div>
+                      <div className="ml-[100px] mr-[340px]">{'  '}</div>
+
+                      <div
+                        className="flex  flex-end items-center justify-between ml-4"
+                        onClick={() => getLst()}
+                      >
+                        APY: {asset?.apy}%
+                      </div>
+
+                      <button
+                        className="flex  flex-end items-center justify-between ml-4"
+                        onClick={() => getLst()}
+                      >
+                        Stake
+                      </button>
+
+                      <button
+                        className="flex  flex-end items-center justify-between ml-4"
+                        onClick={() => getLst()}
+                      >
+                        Unstake
+                      </button>
+                    </div>
+                  ))}
               </div>
-            ))}
+              <div className="ml-10">
+                <h2>Liquid Staking on L2s/Sidechains</h2>
+
+                {currentTab == 'LSTs' &&
+                  l2Lst?.map((asset, index) => (
+                    <div
+                      key={index}
+                      className="box-border flex mt-8 flex-row w-[700px] px-4 pt-4 pb-4 bg-white shadow-xl rounded-xl dark:shadow-lg dark:bg-ui_surface mb-2"
+                    >
+                      <div className="flex flex-row items-center justify-between">
+                        {asset?.tokenSymbol}
+                      </div>
+
+                      <div
+                        className="flex  flex-end items-center justify-between ml-4"
+                        onClick={() => getLst()}
+                      >
+                        APY: {asset?.apy}%
+                      </div>
+                      <div className="ml-[100px] mr-[340px]">{'  '}</div>
+
+                      <button
+                        className="flex  flex-end items-center justify-between ml-4 "
+                        onClick={() => setCurrentTab('Swap')}
+                      >
+                        Stake
+                      </button>
+
+                      <button
+                        className="flex  flex-end items-center justify-between ml-4"
+                        onClick={() => getLst()}
+                      >
+                        Unstake
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
