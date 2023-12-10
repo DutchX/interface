@@ -20,11 +20,7 @@ const Faucet = () => {
     onSubmit: async (values) => {
       setStatus('loading');
       try {
-        const result = await fetch(
-          `https://factor-node.fly.dev:9000/faucet/${values.accountAddress}${
-            values.symbol === 'usdc' || values.symbol === 'eth' ? '' : `/${values.symbol}`
-          }`
-        );
+        const result = await fetch(``);
         const parsed: { message: string } = await result.json();
         if (!parsed.message.includes('Success')) {
           setStatus('error');

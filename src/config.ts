@@ -67,12 +67,6 @@ const getAddresses = (): ContractAddresses => {
     factorAddresses = getContractAddressesForChainOrThrow(window.CHAIN_ID);
   } catch {}
 
-  // NOTE: this "if" condition is for custom node config only in development mode
-  if (window.CHAIN_ID === 31337) {
-    return {
-      ...factorAddresses,
-    };
-  }
   if (window.CHAIN_ID === 42161) {
     return {
       ...factorAddresses,

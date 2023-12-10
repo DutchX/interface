@@ -58,8 +58,6 @@ const VaultMetrics = (props: IMetricsProps) => {
     );
   }
 
-  console.log(data, 'ewee');
-
   return (
     <div className="flex flex-col flex-grow p-2 pt-4 shadow-xl dark:shadow-lg dark:bg-ui_surface rounded-xl desktop:p-5">
       <div className="flex flex-col items-center justify-between tablet:flex-row gap-y-5">

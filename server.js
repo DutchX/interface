@@ -1,17 +1,28 @@
 import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
-import {
-  FusionSDK,
-  NetworkEnum,
-  PrivateKeyProviderConnector,
-  AuctionCalculator,
-  AuctionSalt,
-  AuctionSuffix,
-} from '@1inch/fusion-sdk';
-
-// import {} from '@1inch/fusion-sdk'
+import { FusionSDK, PrivateKeyProviderConnector } from '@1inch/fusion-sdk';
 import Web3 from 'web3';
+
+const supportedTokensAddresses = {
+  [42161]: {
+    DAI: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+    ETH: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    FCTR: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    MUX: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    MUXLP: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    SMLP: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    SUSDCARB: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    SUSDC: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    LUSDC: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    LODE: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    IUSDC: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    SUSDCGMX: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+    PNP: '0x0e3cC2c4FB9252d17d07C67135E48536071735D9',
+  },
+};
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -88,16 +99,23 @@ app.get('/api/quote', async (req, res) => {
 
   console.log('Get Quote funciton');
 
-  const makerPrivateKey = process.env.VITE_PRIVATE_KEY;
+  const makerPrivateKey = '';
 
   // console.log('eee', );
   const makerAddress = '0xeEe5B833d6fA94e661cF2d2359c2749C50D46044';
 
   const web3 = new Web3('https://arb-mainnet.g.alchemy.com/v2/lkFGfQpATYx05UzRcgRDUalSw6CCSq8a');
 
-  // const blockchainProvider = new PrivateKeyProviderConnector(makerPrivateKey, web3);
+  const blockchainProvider = new PrivateKeyProviderConnector(makerPrivateKey, web3);
 
   console.log('I am inside Quote Fusion SDK impl');
+
+  const sdk = new FusionSDK({
+    url: 'https://fusion.1inch.io',
+    network: 42161,
+    blockchainProvider,
+    authKey: 'h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
+  });
 
   try {
     const params = {
@@ -107,11 +125,68 @@ app.get('/api/quote', async (req, res) => {
     };
 
     const quote = await sdk.getQuote(params);
-    console.log(quote);
-
-    return quote;
+    return res.json(quote);
   } catch (error) {
     console.error(error);
+  }
+});
+
+//balance api
+
+app.get('/api/tokens', async (req, res) => {
+  const url = `https://api.1inch.dev/token/v1.2/${42161}`;
+
+  const config = {
+    headers: {
+      Authorization: 'Bearer h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
+    },
+    params: { addresses: Object.values(supportedTokensAddresses) },
+  };
+  try {
+    const response = await axios.get(url, config);
+
+    return res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+});
+
+app.get('/api/allTokens', async (req, res) => {
+  const url = `https://api.1inch.dev/token/v1.2/${1}`;
+
+  const config = {
+    headers: {
+      Authorization: 'Bearer h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
+    },
+    params: {},
+  };
+  try {
+    const response = await axios.get(url, config);
+
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+});
+
+//backend
+app.get('/api/backedData', async (req, res) => {
+  const url = `https://backend.itsakshay.repl.co/lst_yield`;
+
+  const config = {
+    headers: {},
+    params: {},
+  };
+  try {
+    const response = await axios.get(url, config);
+
+    return res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 });
 

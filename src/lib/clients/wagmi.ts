@@ -16,15 +16,27 @@ import {
 
 import { getChainRPC } from 'config';
 import { configureChains, createClient } from 'wagmi';
-import { arbitrum, arbitrumGoerli, hardhat } from 'wagmi/chains';
+import { arbitrum, mainnet, baseGoerli, optimism, polygon, bsc, sepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
 export const { chains, provider, webSocketProvider } = configureChains(
-  [arbitrum, arbitrumGoerli],
+  [arbitrum, sepolia, mainnet, baseGoerli, optimism, polygon, bsc],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
         http: 'https://arb-mainnet.g.alchemy.com/v2/lkFGfQpATYx05UzRcgRDUalSw6CCSq8a',
+        webSocket: getChainRPC(chain.id)!.wsRpcUri,
+      }),
+    }),
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: 'https://eth-sepolia.g.alchemy.com/v2/TUcjLJ0Hmf802Dv_b5PwpIjd_YxfuvUn',
+        webSocket: getChainRPC(chain.id)!.wsRpcUri,
+      }),
+    }),
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: 'https://base-goerli.g.alchemy.com/v2/QiWIrTRgrvMPrNEShlNU88q8EAfdNILd',
         webSocket: getChainRPC(chain.id)!.wsRpcUri,
       }),
     }),

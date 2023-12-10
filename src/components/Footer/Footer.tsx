@@ -121,14 +121,7 @@ const Footer = () => {
 
   return (
     <div className={`${isMobileView ? `pb-28 pt-10` : ''} w-full flex-col`}>
-      <div className="flex flex-row border-bottom-header mb-12 items-center  justify-center  w-full h-[120px] ">
-        <img
-          className="w-[250px] h-[100px] cursor-pointer"
-          src={isDarkMode ? 'LogoDark' : 'LogoLight'}
-          alt="DutchX"
-          onClick={() => scrollToTop()}
-        />
-      </div>
+      <div className="flex flex-row border-bottom-header mb-12 items-center  justify-center  w-full h-[120px] "></div>
       <div
         className={`${
           isMobileView ? `flex-col` : 'flex-row'

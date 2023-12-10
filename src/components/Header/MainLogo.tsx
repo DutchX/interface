@@ -7,6 +7,7 @@ import { appRoutes } from 'lib/constants/appRoutes';
 // import DarkModeLogo from 'assets/factor/logo-with-label-dark.svg';
 import useDarkMode from 'hooks/useDarkMode';
 import { useMediaQuery } from 'usehooks-ts';
+import AssetIcon from 'assets/dutchx.svg';
 
 const MainLogo = () => {
   const isMobileView = useMediaQuery('(max-width:800px)');
@@ -32,13 +33,11 @@ const MainLogo = () => {
   return (
     <div className="flex justify-between items-center desktop:w-auto" onClick={() => scrollToTop()}>
       <Link to={appRoutes.discover_path}>
-        {logo && (
-          <img
-            className={isMobileView ? `w-[110px] h-[40px]` : `w-[128px] h-[40px]`}
-            src={logo}
-            alt="Factor"
-          />
-        )}
+        <img
+          className={isMobileView ? `w-[110px] h-[80px]` : `w-[50px] h-[40px]`}
+          src={AssetIcon}
+          alt="Factor"
+        />
       </Link>
     </div>
   );

@@ -105,6 +105,75 @@ export const getAuctionOrders = async (): Promise<any> => {
   return { rate, auctionTakingAmount };
 };
 
+// BackednAPI
+
+export const getLst = async (): Promise<any> => {
+  const url = `http://localhost:3001/api/backedData`;
+
+  console.log('getlst');
+  const config = {
+    headers: {},
+    params: {},
+  };
+
+  try {
+    const response = await axios.get(url, config);
+
+    //console.log(response.data.lsts, Object.values(response.data.lsts)[0]);
+
+    return Object.values(response.data.lsts)[0];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+//Spot api
+
+export const getTokenList = async (chainId: number): Promise<any> => {
+  const url = `http://localhost:3001/api/tokens`;
+
+  const config = {
+    headers: {
+      Authorization: 'Bearer h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
+    },
+    params: {},
+  };
+
+  try {
+    const response = await axios.get(url, config);
+
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const getEntireTokenList = async (chainId: number): Promise<any> => {
+  const url = `http://localhost:3001/api/tokens`;
+
+  const config = {
+    headers: {
+      Authorization: 'Bearer h2GIr46Z6Vbkd6223K47FKsHY304dzc7',
+    },
+    params: {},
+  };
+
+  try {
+    const response = await axios.get(url, config);
+
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+//Fusion API
+
 export const getQuote = async (): Promise<any> => {
   // const url = 'https://api.1inch.dev/fusion/quoter/v1.0/1/quote/receive';
 

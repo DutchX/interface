@@ -3,21 +3,16 @@ import { BigDecimal } from 'lib/helpers/BigDecimal';
 import AssetIcon from 'assets/main-logo-blue.svg';
 import SwapRing from 'assets/studio/SwapRing.svg';
 import { Button } from 'components/UI/Button/Button';
-import AutoFunction from 'components/AutoFunction';
 import Card from 'components/Studio/Card';
 import { useEffect, useState } from 'react';
-import DropDownInfo from 'components/DropDownInfo';
-import Dropdown from 'components/UI/Dropdown/Dropdown';
-import { FusionSDK, NetworkEnum } from '@1inch/fusion-sdk';
-import {
-  getAuctionOrders,
-  getFusionSDK,
-  getQuote,
-  getQuoteOrder,
-  placeOrder,
-} from 'lib/constants/utils';
-import VaultMetrics from 'components/UI/Metrics/VaultMetrics';
+
+import { HexAddress, getQuoteOrder, placeOrder } from 'lib/constants/utils';
 import { BigNumber, ethers } from 'ethers';
+
+import { useTokenApproval } from 'hooks/useTokenApproval';
+import { useAccount } from 'wagmi';
+import { useGetTokenAllowance } from 'hooks/useGetTokenAllowance';
+import { ApproveButton } from 'components/UI/ApproveButton/ApproveButton';
 
 interface Props {
   time: number;
@@ -26,7 +21,14 @@ interface Props {
   autoDeposit: boolean;
   setAutoDeposit: (value: boolean) => void;
   setPercentage: (value: number) => void;
+  allTokens: any;
+  setInputToken: (value: any) => void;
+  inputToken: any;
+  setOutputToken: (value: any) => void;
+  outputToken: any;
 }
+
+const oneInchv5 = '0x1111111254EEB25477B68fb85Ed929f73A960582';
 
 const CARDS = [
   {
@@ -60,46 +62,29 @@ const Swap = (props: Props) => {
     isDisabled: false,
     symbol: 'ETH',
     setInputValue: () => {},
+    allTokens: props.allTokens,
+    setToken: props.setInputToken,
+    token: props.inputToken,
   };
 
   const [isOpen, setIsOpen] = useState(false);
+  const { isConnected, address } = useAccount();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  // const handleOneInchData = () => {
-  //   try {
-  //     const response = getQuote();
-
-  //     setData(response);
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // };
   const [data, setData] = useState<any>(null);
 
-  // useEffect(() => {
-  //   // Define an asynchronous function within useEffect
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await getQuote();
+  const [needToApprove, setNeedToApprove] = useState(false);
+  const [depositAmount, setDepositAmount] = useState<BigNumber>();
 
-  //       setData(response);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   };
-
-  //   // Call the asynchronous function
-  //   fetchData();
-  // }, []); // Empty dependency array means the effect runs once when the component mounts
-
-  const [selectedOption, setSelectedOption] = useState('Share Price');
   const [isLoadingMetric, setIsLoadingMetric] = useState(false);
 
+  const [quoteAmount, setQuoteAmount] = useState<String>();
+
   const handleDropdownChange = (option: string) => {
-    setSelectedOption(option);
+    //setSelectedOption(option);
   };
   const [dropdownOptions, setDropdownOptions] = useState([
     {
@@ -111,6 +96,7 @@ const Swap = (props: Props) => {
     type: 'metrics',
   });
 
+  const [toToke, setToToke] = useState<String>();
   const metricData = data?.presets
     ? [
         {
@@ -133,20 +119,47 @@ const Swap = (props: Props) => {
         },
       ];
 
-  const MetricsProps = {
-    title: 'Dutch Auction Price',
-    dropdown: {
-      selectedLabel: 'selectedOption',
-      setSelectedOption: handleDropdownChange,
-      options: dropdownOptions,
-      theme: metricsTheme,
-    },
-    price: '100',
-    tvl: '100',
-    apy: `${100}%`,
+  const {
+    write: handleApproveAsset,
+    status: approveStatus,
+    txnStatus: approveTxnStatus,
+    error: approveError,
+    isLoading: approveLoading,
+  } = useTokenApproval({
+    addressERC20: '0x000',
+    value: depositAmount || BigNumber.from(0),
+    enabled: needToApprove,
+    spender: oneInchv5 as HexAddress,
+  });
 
-    metricData: metricData,
-    isLoading: isLoadingMetric,
+  const { data: allowance, refetch: refetchAllowance } = useGetTokenAllowance({
+    tokenAddress: '0x000' as HexAddress,
+    owner: address as HexAddress,
+    spender: oneInchv5 as HexAddress,
+  });
+
+  const handleApproveToken = async (isUnlimited: boolean) => {
+    handleApproveAsset?.();
+  };
+
+  const currencyPropOut = {
+    icon: AssetIcon,
+    balance: BigDecimal.ZERO,
+    inputValue: quoteAmount,
+    currentAsset: {
+      name: 'ETH',
+      symbol: 'ETH',
+      logo: 'ETH',
+      decimals: 18,
+      address: '',
+    },
+    isDisabled: false,
+    symbol: 'ETH',
+    setInputValue: () => {},
+    allTokens: props.allTokens,
+    setToken: props.setOutputToken,
+    token: props.outputToken,
+    useOut: true,
   };
 
   return (
@@ -158,7 +171,7 @@ const Swap = (props: Props) => {
           className="w-[112px] h-[112px]"
           style={{ marginTop: -40, marginBottom: -50, zIndex: 1 }}
         />
-        <CurrencyInput {...currencyProp} />
+        <CurrencyInput {...currencyPropOut} />
       </div>
       <div className="flex justify-between my-5 gap-5">
         {CARDS.map((item) => {
@@ -168,12 +181,22 @@ const Swap = (props: Props) => {
 
       <Button
         variant="write-btn"
-        onClick={() => {
-          getQuoteOrder();
+        onClick={async () => {
+          const value = await getQuoteOrder();
+          // setToToke(value.param.toTokenAddress)
+          setQuoteAmount(ethers.utils.formatUnits(BigNumber.from(value.toTokenAmount), 6));
         }}
       >
         Get Quote
       </Button>
+
+      {needToApprove && isConnected && (
+        <ApproveButton
+          disabled={!!address}
+          handleOnApprove={handleApproveToken}
+          isLoading={approveLoading}
+        />
+      )}
 
       <Button
         variant="write-btn"
@@ -183,18 +206,6 @@ const Swap = (props: Props) => {
       >
         Place Order
       </Button>
-
-      <Dropdown
-        bordered
-        width="100%"
-        placeHolder={'Advanced Menu'}
-        options={[]}
-        theme={{ type: 'asset' }}
-        selectedLabel={''}
-        setSelectedOption={() => {}}
-      />
-
-      {/* <VaultMetrics {...MetricsProps} /> */}
     </div>
   );
 };
